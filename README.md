@@ -53,6 +53,89 @@ config.py           # Settings
 utils/              # File loaders and cleaning
 ```
 
+---
+
+## ⚙️ Setup Instructions
+
+Follow the steps below to run the project locally.
+
+---
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/premparab9/offline-rag-system.git
+cd offline-rag-system
+```
+
+---
+
+### 2. Create and activate virtual environment
+
+```bash
+python -m venv .venv
+```
+
+Activate the environment:
+
+* **Windows (PowerShell):**
+
+```bash
+.venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+---
+
+### 4. Install and start Ollama
+
+Download and install Ollama from: https://ollama.com
+
+Start the Ollama server:
+
+```bash
+ollama serve
+```
+
+---
+
+### 5. Pull required models
+
+```bash
+ollama pull gemma2:2b
+ollama pull nomic-embed-text
+```
+
+---
+
+### 6. Run the application
+
+```bash
+streamlit run app.py
+```
+
+---
+
+### 7. Open in browser
+
+The app will be available at:
+
+```
+http://localhost:8501
+```
+
+---
+
+## ⚠️ Notes
+
+* First-time model download may take time depending on internet speed
+* Make sure Ollama is running before starting the app
+* For image support (OCR), install Tesseract separately
+
 ## 💡 Usage
 
 * Upload documents
