@@ -28,6 +28,6 @@ def generate_response(prompt: str, model_name: str = None) -> str:
     """
     llm = get_llm(model_name)
 
-    # .invoke() sends the prompt and waits for full response
+    
     response = llm.invoke(prompt)
     return response
