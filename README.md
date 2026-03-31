@@ -1,14 +1,14 @@
-# 🔒 Offline RAG System
+# Offline RAG System
 
-A local Retrieval-Augmented Generation (RAG) system that allows you to upload documents and ask questions based on their content — without using any external APIs.
+A local Retrieval-Augmented Generation (RAG) system that allows you to upload documents and ask questions based on their content without using any external APIs.
 
 The entire pipeline runs offline using local models.
 
 ---
 
-## 🚀 Features
+## Features
 
-* Upload documents (PDF, DOCX, TXT, Images)
+* Upload documents (PDF, DOCX, TXT)
 * Ask questions based on uploaded content
 * Answers generated using local LLM
 * Works completely offline
@@ -16,7 +16,7 @@ The entire pipeline runs offline using local models.
 
 ---
 
-## 🧠 How it works
+## How it works
 
 1. Documents are loaded and text is extracted
 2. Text is cleaned and split into chunks
@@ -30,7 +30,7 @@ The entire pipeline runs offline using local models.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 * Python
 * Streamlit
@@ -40,7 +40,7 @@ The entire pipeline runs offline using local models.
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```id="7cz4b6"
 app.py              # UI
@@ -55,7 +55,7 @@ utils/              # File loaders and cleaning
 
 ---
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 Follow the steps below to run the project locally.
 
@@ -63,7 +63,7 @@ Follow the steps below to run the project locally.
 
 ### 1. Clone the repository
 
-```bash
+```
 git clone https://github.com/premparab9/offline-rag-system.git
 cd offline-rag-system
 ```
@@ -72,7 +72,7 @@ cd offline-rag-system
 
 ### 2. Create and activate virtual environment
 
-```bash
+```
 python -m venv .venv
 ```
 
@@ -80,7 +80,7 @@ Activate the environment:
 
 * **Windows (PowerShell):**
 
-```bash
+```
 .venv\Scripts\activate
 ```
 
@@ -114,7 +114,7 @@ ollama pull nomic-embed-text
 
 ### 6. Run the application
 
-```bash
+```
 streamlit run app.py
 ```
 
@@ -130,13 +130,13 @@ http://localhost:8501
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * First-time model download may take time depending on internet speed
 * Make sure Ollama is running before starting the app
 * For image support (OCR), install Tesseract separately
 
-## 💡 Usage
+## Usage
 
 * Upload documents
 * Click **Ingest Documents**
@@ -145,6 +145,6 @@ http://localhost:8501
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Prem Parab
