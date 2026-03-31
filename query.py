@@ -43,10 +43,9 @@ def answer_question(
 
     Returns dict with 'answer' and 'sources'.
     """
-    # Step 1: Embed the query
+    
     query_vec = embed_query(question)
 
-    # Step 2: Retrieve relevant chunks
     relevant_chunks = query_documents(query_vec)
 
     if not relevant_chunks:
@@ -55,10 +54,8 @@ def answer_question(
             "sources": []
         }
 
-    # Step 3: Build the prompt
     prompt = build_prompt(relevant_chunks, question)
 
-    # Step 4: Generate answer with local LLM
     answer = generate_response(prompt, model_name)
 
     return {
