@@ -8,7 +8,7 @@ from utils.text_cleaner import clean_text
 from embeddings import embed_texts
 from vector_store import add_documents
 
-from tqdm import tqdm   # 🔥 NEW
+from tqdm import tqdm   
 
 
 def load_document(file_path: str) -> str:
@@ -30,17 +30,17 @@ def load_document(file_path: str) -> str:
 def ingest_document(file_path: str) -> int:
     print(f"Ingesting: {file_path}")
 
-    # 1. Load
+    # Load
     raw_text = load_document(file_path)
 
     if not raw_text.strip():
         print("No text found")
         return 0
 
-    # 2. Clean
+    # Clean
     cleaned = clean_text(raw_text)
 
-    # 3. Chunk
+    # Chunk
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP
@@ -49,13 +49,13 @@ def ingest_document(file_path: str) -> int:
     chunks = splitter.split_text(cleaned)
     print(f"Total chunks: {len(chunks)}")
 
-    # 4. Embedding with tqdm 🔥
+    # Embedding with tqdm 
     embeddings = []
     for chunk in tqdm(chunks, desc="Embedding chunks"):
         emb = embed_texts([chunk])[0]
         embeddings.append(emb)
 
-    # 5. Store
+    # Store
     add_documents(chunks, embeddings)
 
     print("Ingestion complete")
