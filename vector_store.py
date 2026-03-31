@@ -39,13 +39,13 @@ def add_documents(chunks: list[str], embeddings: list):
     """
     collection = get_or_create_collection()
 
-    # Generate unique IDs for each chunk
+    
     ids = [str(uuid.uuid4()) for _ in chunks]
 
     collection.add(
-        documents=chunks,      # The actual text (stored for retrieval)
-        embeddings=embeddings, # The vector representations
-        ids=ids                # Unique identifiers
+        documents=chunks,      
+        embeddings=embeddings,
+        ids=ids               
     )
     print(f"Stored {len(chunks)} chunks in ChromaDB")
 
@@ -64,12 +64,11 @@ def query_documents(query_embedding: list, n_results: int = TOP_K) -> list[str]:
     collection = get_or_create_collection()
 
     results = collection.query(
-        query_embeddings=[query_embedding],  # Must be a list of lists
+        query_embeddings=[query_embedding], 
         n_results=n_results,
-        include=["documents"]               # Return text, not just IDs
+        include=["documents"]              
     )
 
-    # results["documents"] is a list of lists — flatten it
     return results["documents"][0]
 
 
