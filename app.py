@@ -8,7 +8,6 @@ from query import answer_question
 from vector_store import clear_collection
 from config import LLM_MODEL
 
-# Page configuration
 st.set_page_config(
     page_title="Offline RAG System",
     page_icon="🔒",
@@ -20,16 +19,13 @@ st.markdown("""
 
 """, unsafe_allow_html=True)
 
-# ── Header ───────────────────────────────────────────
 st.title("🔒 Offline RAG System")
 st.markdown("*Ask questions about your documents — 100% private, no internet.*")
 st.divider()
 
-# ── Sidebar ───────────────────────────────────────────
 with st.sidebar:
     st.header("⚙️ Settings")
 
-    # Model selector — lists models pulled via Ollama
     selected_model = st.selectbox(
         "Select LLM",
         options=["gemma2:2b", "gemma2:9b", "deepseek-r1:7b", "llama3.2:3b"],
@@ -39,16 +35,15 @@ with st.sidebar:
 
     st.divider()
 
-    # Knowledge base management
+ 
     st.subheader("📚 Knowledge Base")
     if st.button("🗑️ Clear All Documents", use_container_width=True):
         clear_collection()
         st.success("Knowledge base cleared!")
 
-# ── Two-column layout ─────────────────────────────────
 col1, col2 = st.columns([1, 1], gap="large")
 
-# ── Column 1: Document Upload ─────────────────────────
+
 with col1:
     st.subheader("📄 Upload Documents")
 
@@ -75,12 +70,11 @@ with col1:
 
                     # Ingest the document
                     chunks_added = ingest_document(tmp_path)
-                    os.unlink(tmp_path)   # Clean up temp file
+                    os.unlink(tmp_path)   
 
                     progress.progress((i + 1) / len(uploaded_files))
                     st.success(f"✓ {file.name} — {chunks_added} chunks stored")
 
-# ── Column 2: Q&A ─────────────────────────────────────
 with col2:
     st.subheader("💬 Ask a Question")
 
