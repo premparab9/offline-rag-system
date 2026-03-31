@@ -13,8 +13,8 @@ def get_llm(model_name: str = None):
 
     return OllamaLLM(
         model=model,
-        temperature=0.1,      # Low = more deterministic answers
-        num_ctx=4096,         # Context window size
+        temperature=0.1,      
+        num_ctx=4096,         
     )
 
 
