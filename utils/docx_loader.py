@@ -9,7 +9,7 @@ def load_docx(file_path: str) -> str:
     paragraphs = []
 
     for para in doc.paragraphs:
-        # Skip empty paragraphs
+
         if para.text.strip():
             paragraphs.append(para.text.strip())
 
