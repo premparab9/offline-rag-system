@@ -11,7 +11,7 @@ def build_prompt(context_chunks: list[str], question: str) -> str:
     The prompt tells the LLM to ONLY use the provided context.
     This prevents hallucination by grounding answers in documents.
     """
-    # Join retrieved chunks into one context block
+   
     context = "\n\n---\n\n".join(context_chunks)
 
     prompt = f"""You are a helpful assistant. Answer the question using ONLY the context provided below.
@@ -60,5 +60,5 @@ def answer_question(
 
     return {
         "answer": answer,
-        "sources": relevant_chunks   # Return for transparency
+        "sources": relevant_chunks   
     }
