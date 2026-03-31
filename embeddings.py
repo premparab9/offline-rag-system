@@ -17,7 +17,7 @@ def embed_texts(texts: list) -> list:
     """
     model = get_embedding_model()
 
-    # embed_documents() is optimised for batches
+    
     embeddings = model.embed_documents(texts)
     return embeddings
 
