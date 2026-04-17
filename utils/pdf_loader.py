@@ -1,17 +1,23 @@
+
 import PyPDF2
+from pathlib import Path
+from logger import get_logger
 
-def load_pdf(file_path: str) -> str:
-    """
-    Extract text from a PDF file
-    """
-    text = ""
+log = get_logger(__name__)
 
-    with open(file_path, "rb") as file:
-        reader = PyPDF2.PdfReader(file)
 
-        for page in reader.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
+def load_pdf(file_path):
+    pages = []
 
-    return text.strip()
+    with open(file_path, "rb") as f:
+        reader = PyPDF2.PdfReader(f)
+        total  = len(reader.pages)
+        log.info("Opening %s — %d pages", Path(file_path).name, total)
+
+        for i in range(total):
+            text = reader.pages[i].extract_text()
+            if text and text.strip():
+                pages.append({"page": i + 1, "text": text.strip()})
+
+    log.info("Got text from %d / %d pages", len(pages), total)
+    return pages
