@@ -1,16 +1,18 @@
+
 import pytesseract
 from PIL import Image
+from logger import get_logger
 
-def load_image_ocr(file_path: str) -> str:
-    """
-    Extract text from an image using Tesseract OCR.
-    Works with PNG, JPG, TIFF, BMP files.
-    """
-    
-    img = Image.open(file_path)
+log = get_logger(__name__)
 
-    img = img.convert("L")
 
-    text = pytesseract.image_to_string(img, lang="eng")
+def load_image_ocr(file_path):
+    img  = Image.open(file_path).convert("L")
+    text = pytesseract.image_to_string(img, lang="eng").strip()
 
-    return text.strip()
+    if not text:
+        log.warning("No text found in image: %s", file_path)
+        return []
+
+    log.info("OCR done: %s", file_path)
+    return [{"page": "image", "text": text}]
