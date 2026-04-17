@@ -1,79 +1,95 @@
+
+import os
+import uuid
 import chromadb
 from chromadb.config import Settings
-from config import CHROMA_DB_PATH, COLLECTION_NAME, TOP_K
-import uuid
+from config import CHROMA_DB_PATH, COLLECTION_NAME, TOP_K, CHROMA_BATCH_SIZE
+from logger import get_logger
 
-def get_chroma_client():
-    """
-    Create a persistent ChromaDB client.
-    Data is saved to disk at CHROMA_DB_PATH.
-    """
+log = get_logger(__name__)
+
+
+def _get_collection():
     client = chromadb.PersistentClient(
         path=CHROMA_DB_PATH,
         settings=Settings(anonymized_telemetry=False)
     )
-    return client
-
-
-def get_or_create_collection():
-    """
-    Get existing collection or create a new one.
-    Collections are like tables in a relational DB.
-    We use cosine similarity as our distance metric.
-    """
-    client = get_chroma_client()
-    collection = client.get_or_create_collection(
+    return client.get_or_create_collection(
         name=COLLECTION_NAME,
-        metadata={"hnsw:space": "cosine"}  # Use cosine similarity
+        metadata={"hnsw:space": "cosine"}
     )
-    return collection
 
 
-def add_documents(chunks: list[str], embeddings: list):
-    """
-    Store text chunks and their embeddings in ChromaDB.
+def add_documents(chunks, embeddings, metadatas=None):
+    collection = _get_collection()
+    total      = len(chunks)
 
-    Args:
-        chunks: list of text strings
-        embeddings: list of corresponding float vectors
-    """
-    collection = get_or_create_collection()
+    if metadatas is None:
+        metadatas = [{} for _ in chunks]
 
-    
-    ids = [str(uuid.uuid4()) for _ in chunks]
+    for start in range(0, total, CHROMA_BATCH_SIZE):
+        end = min(start + CHROMA_BATCH_SIZE, total)
+        collection.add(
+            documents  = chunks[start:end],
+            embeddings = embeddings[start:end],
+            metadatas  = metadatas[start:end],
+            ids        = [str(uuid.uuid4()) for _ in range(end - start)]
+        )
+        log.info("Saved batch %d-%d", start, end)
 
-    collection.add(
-        documents=chunks,      
-        embeddings=embeddings,
-        ids=ids               
-    )
-    print(f"Stored {len(chunks)} chunks in ChromaDB")
+    log.info("Saved %d chunks to vector store", total)
 
 
-def query_documents(query_embedding: list, n_results: int = TOP_K) -> list[str]:
-    """
-    Retrieve the top-k most similar chunks.
+def query_documents(query_embedding, n_results=TOP_K):
+    collection = _get_collection()
+    count      = collection.count()
 
-    Args:
-        query_embedding: embedding vector of the user's question
-        n_results: number of chunks to return
+    if count == 0:
+        return []
 
-    Returns:
-        List of relevant text chunks
-    """
-    collection = get_or_create_collection()
-
-    results = collection.query(
-        query_embeddings=[query_embedding], 
+    n_results = min(n_results, count)
+    results   = collection.query(
+        query_embeddings=[query_embedding],
         n_results=n_results,
-        include=["documents"]              
+        include=["documents", "metadatas"]
     )
 
-    return results["documents"][0]
+    output = []
+    for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
+        meta = meta or {}
+        output.append({
+            "text":   doc,
+            "source": meta.get("source", "unknown"),
+            "page":   meta.get("page", "?")
+        })
+
+    return output
 
 
 def clear_collection():
-    """Delete all documents from the collection."""
-    client = get_chroma_client()
-    client.delete_collection(COLLECTION_NAME)
-    print("Collection cleared.")
+    chromadb.PersistentClient(
+        path=CHROMA_DB_PATH,
+        settings=Settings(anonymized_telemetry=False)
+    ).delete_collection(COLLECTION_NAME)
+    log.info("Collection cleared")
+
+
+def get_storage_stats():
+    total_bytes = 0
+    if os.path.exists(CHROMA_DB_PATH):
+        for dirpath, _, filenames in os.walk(CHROMA_DB_PATH):
+            for fname in filenames:
+                try:
+                    total_bytes += os.path.getsize(os.path.join(dirpath, fname))
+                except OSError:
+                    pass
+
+    if   total_bytes < 1_024:        readable = f"{total_bytes} B"
+    elif total_bytes < 1_024 ** 2:   readable = f"{total_bytes / 1_024:.1f} KB"
+    elif total_bytes < 1_024 ** 3:   readable = f"{total_bytes / 1_024 ** 2:.2f} MB"
+    else:                             readable = f"{total_bytes / 1_024 ** 3:.2f} GB"
+
+    return {
+        "size_readable": readable,
+        "chunk_count":   _get_collection().count()
+    }
