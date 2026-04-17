@@ -1,16 +1,17 @@
+
 from docx import Document
+from logger import get_logger
 
-def load_docx(file_path: str) -> str:
-    """
-    Extract text from a .docx Word file.
-    Preserves paragraph structure.
-    """
-    doc = Document(file_path)
-    paragraphs = []
+log = get_logger(__name__)
 
-    for para in doc.paragraphs:
 
-        if para.text.strip():
-            paragraphs.append(para.text.strip())
+def load_docx(file_path):
+    doc  = Document(file_path)
+    text = "\n".join(p.text.strip() for p in doc.paragraphs if p.text.strip())
 
-    return "\n".join(paragraphs)
+    if not text:
+        log.warning("No text found in %s", file_path)
+        return []
+
+    log.info("Loaded %s", file_path)
+    return [{"page": "docx", "text": text}]
