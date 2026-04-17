@@ -1,33 +1,54 @@
+
 from langchain_ollama import OllamaLLM
 from config import LLM_MODEL
+from logger import get_logger
 
-def get_llm(model_name: str = None):
-    """
-    Return a LangChain LLM wrapper for Ollama.
+log = get_logger(__name__)
 
-    Args:
-        model_name: Ollama model to use (e.g. "gemma2:2b").
-                    Falls back to config default if not provided.
-    """
-    model = model_name or LLM_MODEL
+AVAILABLE_MODELS = {
+    "gemma2:2b": {
+        "label":       "Gemma 2 · 2B  (SLM — Fast)",
+        "type":        "slm",
+        "description": "Small and fast. Good for straightforward Q&A.",
+    },
+}
 
-    return OllamaLLM(
-        model=model,
-        temperature=0.1,      
-        num_ctx=4096,         
-    )
+_SIMPLE_STARTS = frozenset([
+    "what is", "what are", "who is", "who are", "when did", "when was",
+    "where is", "where are", "define", "list", "name", "how many", "which",
+])
+
+_COMPLEX_KEYWORDS = frozenset([
+    "explain", "summarize", "summarise", "compare", "analyse", "analyze",
+    "describe", "elaborate", "discuss", "why did", "why does", "how does",
+    "what would happen", "give me a detailed", "walk me through",
+])
 
 
-def generate_response(prompt: str, model_name: str = None) -> str:
-    """
-    Send a prompt to the local LLM and return the response.
+def route_query(question, selected_model):
+    available = list(AVAILABLE_MODELS.keys())
 
-    Args:
-        prompt: The full prompt string (context + question)
-        model_name: Optional override for which model to use
-    """
-    llm = get_llm(model_name)
+    if len(available) == 1:
+        return available[0], f"Only one model available: {available[0]}"
 
-    
-    response = llm.invoke(prompt)
-    return response
+    q = question.lower().strip()
+
+    for phrase in _SIMPLE_STARTS:
+        if q.startswith(phrase):
+            slms = [k for k, v in AVAILABLE_MODELS.items() if v["type"] == "slm"]
+            if slms:
+                return slms[0], f"Simple question — using fast SLM"
+
+    for keyword in _COMPLEX_KEYWORDS:
+        if keyword in q:
+            llms = [k for k, v in AVAILABLE_MODELS.items() if v["type"] == "llm"]
+            if llms:
+                return llms[0], f"Complex question — using larger LLM"
+
+    return selected_model, "Using model selected in sidebar"
+
+
+def generate_response(prompt, model_name=None):
+    log.info("Generating with model: %s", model_name or LLM_MODEL)
+    llm = OllamaLLM(model=model_name or LLM_MODEL, temperature=0.1, num_ctx=4096)
+    return llm.invoke(prompt)
