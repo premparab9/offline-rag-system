@@ -48,9 +48,15 @@ ingest.py           # Document processing
 query.py            # Q&A logic
 llm.py              # LLM integration
 embeddings.py       # Embedding generation
+logger.py
 vector_store.py     # Database operations
+requirements.txt
 config.py           # Settings
 utils/              # File loaders and cleaning
+docx_loader.py
+ocr_loader.py
+pdf_loader.py
+text_clearer.py
 ```
 
 ---
